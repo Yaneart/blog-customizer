@@ -14,6 +14,8 @@ import {
 	ArticleStateType,
 	OptionType,
 } from 'src/constants/articleProps';
+import clsx from 'clsx';
+import { useClose } from 'src/hooks/useClose';
 import styles from './ArticleParamsForm.module.scss';
 
 interface ArticleParamsFormProps {
@@ -39,23 +41,17 @@ export const ArticleParamsForm = ({
 		}
 	};
 
-	const handleClickOutside = (event: MouseEvent) => {
-		if (
-			forcedIsOpen === undefined &&
-			sidebarRef.current &&
-			!sidebarRef.current.contains(event.target as Node) &&
-			isOpen
-		) {
+	const handleClose = () => {
+		if (forcedIsOpen === undefined) {
 			setIsOpen(false);
 		}
 	};
 
-	useEffect(() => {
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [isOpen, forcedIsOpen]);
+	useClose({
+		isOpen: actualIsOpen,
+		onClose: handleClose,
+		rootRef: sidebarRef,
+	})
 
 	const handleFormChange =
 		(field: keyof ArticleStateType) => (value: OptionType) => {
@@ -80,9 +76,7 @@ export const ArticleParamsForm = ({
 		<>
 			<ArrowButton isOpen={actualIsOpen} onClick={toggleSidebar} />
 			<aside
-				className={`${styles.container} ${
-					actualIsOpen ? styles.container_open : ''
-				}`}
+				className={clsx(styles.container, actualIsOpen && styles.container_open)}
 				ref={sidebarRef}>
 				<form
 					className={styles.form}
